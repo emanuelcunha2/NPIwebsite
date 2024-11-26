@@ -1,0 +1,372 @@
+﻿@{
+    ViewBag.Title = "About";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+<link href="@Url.Content("~/Content/monthlyPlanPage.css")" rel="stylesheet" type="text/css" />
+
+
+
+<!-- Rows -->
+<div class="flex-cols" style="background-color:dodgerblue;height:500px; width:1000px; padding:5px; margin-top:150px">
+
+    <!-- Row 1 -->
+    <div class="flex-cols droppable" id="row1" style="flex: 1; background-color: lightgreen; margin: 5px; padding:10px;">
+
+        <!-- Draggable object 1 -->
+        <div class="fill-width draggable" draggable="true" id="draggable1" style="background-color: mediumpurple; margin: 5px; height:50px; cursor:pointer;">
+            <p>Object 1 Test</p>
+        </div>
+
+        <!-- Draggable object 2 -->
+        <div class="fill-width draggable" draggable="true" id="draggable2" style="background-color: coral; margin: 5px; height:50px; cursor:pointer;">
+            <p>Object 2 Test</p>
+        </div>
+
+    </div>
+
+    <!-- Row 2 -->
+    <div class="flex-cols droppable" id="row2" style="flex: 1; background-color: darkblue; margin: 5px; padding:10px;">
+
+    </div>
+
+    <!-- Row 3 -->
+    <div class="flex-cols droppable" id="row3" style="flex: 1; background-color: darkblue; margin: 5px; padding:10px;">
+
+    </div>
+
+</div>
+
+<script>
+    const draggables = document.querySelectorAll('.draggable');
+    const droppables = document.querySelectorAll('.droppable');
+
+    function initializeDraggables() {
+        draggables.forEach(draggable => {
+            // Remove any existing listeners to avoid duplicates
+            draggable.removeEventListener('dragstart', handleDragStart);
+            draggable.removeEventListener('dragend', handleDragEnd);
+
+            // Add event listeners
+            draggable.addEventListener('dragstart', handleDragStart);
+            draggable.addEventListener('dragend', handleDragEnd);
+        });
+    }
+
+    function initializeDroppables() {
+        droppables.forEach(droppable => {
+            // Remove any existing listeners to avoid duplicates
+            droppable.removeEventListener('dragover', handleDragOver);
+            droppable.removeEventListener('dragenter', handleDragEnter);
+            droppable.removeEventListener('dragleave', handleDragLeave);
+            droppable.removeEventListener('drop', handleDrop);
+
+            // Add event listeners
+            droppable.addEventListener('dragover', handleDragOver);
+            droppable.addEventListener('dragenter', handleDragEnter);
+            droppable.addEventListener('dragleave', handleDragLeave);
+            droppable.addEventListener('drop', handleDrop);
+        });
+    }
+
+    function handleDragStart(e) {
+        const preview = document.querySelector('.preview');
+        if (preview) preview.remove();
+
+        e.dataTransfer.setData('text/plain', e.target.id || '');
+        e.target.classList.add('dragging');
+    }
+
+    function handleDragEnd(e) {
+        e.target.classList.remove('dragging');
+        const preview = document.querySelector('.preview');
+        if (preview) preview.remove();
+    }
+
+    function handleDragOver(e) {
+        e.preventDefault(); // Necessary to allow drop
+    }
+
+    function handleDragEnter(e) {
+        const droppable = e.target;
+        if (!droppable.querySelector('.preview')) {
+            const draggedElement = document.querySelector('.dragging');
+            if (draggedElement) {
+                const preview = draggedElement.cloneNode(true);
+                preview.classList.add('preview');
+                preview.style.opacity = '0.5'; // Make it semi-transparent
+                preview.style.pointerEvents = 'none'; // Disable interactions with the preview
+                droppable.appendChild(preview);
+            }
+        }
+    }
+
+    function handleDragLeave(e) {
+        const droppable = e.target;
+        const preview = droppable.querySelector('.preview');
+        if (preview) preview.remove();
+    }
+
+    function handleDrop(e) {
+        e.preventDefault();
+
+        const droppable = e.target;
+        const draggedElement = document.querySelector('.dragging');
+        if (draggedElement) {
+            const preview = droppable.querySelector('.preview');
+
+            // Remove the preview before appending the element
+            if (preview) preview.remove();
+
+            // Only move the element if it hasn't been dropped already on this droppable
+            if (!droppable.contains(draggedElement)) {
+                // Remove the element from its original container (if it's moved from another droppable)
+                const originalContainer = draggedElement.parentElement;
+                if (originalContainer) {
+                    // Check if originalContainer is not null before accessing its ID
+                    if (originalContainer.id) {
+                        console.log("Removed from:" + originalContainer.id);
+                    }
+                    originalContainer.removeChild(draggedElement);
+                }
+
+                // Append the dragged element to the new droppable
+                droppable.appendChild(draggedElement);
+
+                // Reinitialize draggables and droppables after the drop
+                initializeDraggables();
+                initializeDroppables();
+
+                console.log("Dropped in:" + droppable.id);
+            } else {
+                console.log("Element already in this droppable");
+            }
+        }
+    }
+
+    // Initialize drag events and droppable areas on page load
+    initializeDraggables();
+    initializeDroppables();
+</script>
+
+<div class="AllDiv" data-bs-theme="dark">
+
+    <!-- Modals -->
+    <div class="modal fade" style="position:absolute;" id="setupModal" tabindex="-1" role="dialog" aria-labelledby="setupModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content modal-container theme-bkg-1 theme-border-1 border-radius-1">
+
+                <div class="modal-header theme-border-5-bottom">
+                    <p style="font-size:20px" id="setupModalLabel">30 October 2024</p>
+                </div>
+
+                <div class="modal-body flex-cols">
+
+                    <div class="flex-rows">
+                        <div class="form-check form-switch margin-right-micro-2">
+                            <input class="form-check-input scale-120" type="checkbox" id="flexSwitchCheckDefault">
+                        </div>
+                        <p class="form-check-label" for="flexSwitchCheckDefault">Marked as Holiday</p>
+                    </div>
+
+                    <p class="margin-top-micro-1">Email</p>
+                    <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
+
+                </div>
+
+                <div class="modal-footer">
+                    <div style="display:flex;flex-direction:row">
+                        <button type="button" style="margin-left:auto;" class="theme-btn-1-horizontal height-small" data-dismiss="modal">
+                            Close
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters & Titles Header -->
+    <div class="flex-cols fill-width fix-top header">
+
+        <!-- Filters -->
+        <div class="flex-rows flex-100 fill-width theme-bkg-1  " style="padding: 5px; height: var(--header-btns-height); ">
+
+            <button class="theme-btn-1-horizontal margin-right-micro-2 flex-cols flex-cols-center">
+                <svg xmlns="http://www.w3.org/2000/svg" height="22px" width="22px" viewBox="0 -960 960 960" fill="White"><path d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm0-360h160v-200H160v200Zm240 0h160v-200H400v200Zm240 0h160v-200H640v200ZM320-240v-200H160v200h160Zm80 0h160v-200H400v200Zm240 0h160v-200H640v200Z" /></svg>
+                <p class="margin-top-micro-1">Month</p>
+            </button>
+
+            <button class="theme-btn-1-horizontal margin-right-micro-2 flex-cols flex-cols-center">
+                <svg xmlns="http://www.w3.org/2000/svg" height="22px" width="22px" viewBox="0 -960 960 960" fill="White"><path d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm360-80h100v-480H520v480Zm-180 0h100v-480H340v480Zm-180 0h100v-480H160v480Zm540 0h100v-480H700v480Z" /></svg>
+                <p class="margin-top-micro-1">Week</p>
+            </button>
+
+            <div class="theme-bkg-5 fill-height margin-right-micro-2" style="width:2px;"></div>
+
+            <button class="theme-btn-1-horizontal margin-right-micro-2 flex-cols flex-cols-center">
+                <svg xmlns="http://www.w3.org/2000/svg" height="22px" width="22px" viewBox="0 -960 960 960" fill="White"><path d="M360-300q-42 0-71-29t-29-71q0-42 29-71t71-29q42 0 71 29t29 71q0 42-29 71t-71 29ZM200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840-720v560q0 33-23.5 56.5T760-80H200Zm0-80h560v-400H200v400Zm0-480h560v-80H200v80Zm0 0v-80 80Z" /></svg>
+                <p class="margin-top-micro-1">Today</p>
+            </button>
+
+            <button class="theme-btn-1-horizontal margin-right-micro-2 flex-cols flex-cols-center" style="width:80px">
+                <svg xmlns="http://www.w3.org/2000/svg" height="22px" width="22px" viewBox="0 -960 960 960" fill="White"><path d="M200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840-720v560q0 33-23.5 56.5T760-80H200Zm0-80h560v-400H200v400Zm0-480h560v-80H200v80Zm0 0v-80 80Zm280 240q-17 0-28.5-11.5T440-440q0-17 11.5-28.5T480-480q17 0 28.5 11.5T520-440q0 17-11.5 28.5T480-400Zm-160 0q-17 0-28.5-11.5T280-440q0-17 11.5-28.5T320-480q17 0 28.5 11.5T360-440q0 17-11.5 28.5T320-400Zm320 0q-17 0-28.5-11.5T600-440q0-17 11.5-28.5T640-480q17 0 28.5 11.5T680-440q0 17-11.5 28.5T640-400ZM480-240q-17 0-28.5-11.5T440-280q0-17 11.5-28.5T480-320q17 0 28.5 11.5T520-280q0 17-11.5 28.5T480-240Zm-160 0q-17 0-28.5-11.5T280-280q0-17 11.5-28.5T320-320q17 0 28.5 11.5T360-280q0 17-11.5 28.5T320-240Zm320 0q-17 0-28.5-11.5T600-280q0-17 11.5-28.5T640-320q17 0 28.5 11.5T680-280q0 17-11.5 28.5T640-240Z" /></svg>
+                <p class="margin-top-micro-1">May 2024</p>
+            </button>
+
+            <button type="button" style="margin-right:10px; position:absolute" class="btn btn-primary" data-toggle="modal" data-target="#setupModal">
+                INSERIR SETUP
+            </button>
+        </div>
+
+        <!-- Titles -->
+        <div class="flex-rows fill-width height-small">
+
+            <!-- Space for week numbers -->
+            <div class="theme-border-1 height-small width-small  theme-bkg-1">
+                <div class="fill theme-bkg-2"></div>
+            </div>
+
+            <!-- Days of the Week -->
+            @foreach (var day in ViewBag.Days)
+            {
+                <div class="theme-border-1  flex-cols height-small  flex-100">
+                    <div class="fill theme-bkg-2 border-radius-1">
+                        <p style="margin-left:5px;">@day</p>
+                    </div>
+                </div>
+            }
+
+            <!-- Space for capacity MFGE -->
+            <div class="theme-border-1  flex-cols height-small  flex-80">
+                <div class="fill theme-bkg-2 border-radius-1"></div>
+            </div>
+
+            <!-- Space for capacity SMT -->
+            <div class="theme-border-1 theme-bkg-1 flex-cols height-small  flex-80">
+                <div class="fill theme-bkg-2 border-radius-1"></div>
+            </div>
+        </div>
+
+        <div class="theme-bkg-4" style="height:0.5px;"></div>
+    </div>
+
+    <!-- Monthly Calendar -->
+    <div class="flex-cols fill-width margin-header">
+
+        <!-- Foreach week -->
+        @foreach (var week in ViewBag.Month.Weeks)
+        {
+            <div class="TestingClassParent flex-rows flex-100">
+
+                <!-- Week Left Side Area -->
+                <div class="TestingClassWeek flex-cols width-small theme-bkg-2" style="min-height: 15vh;">
+                    <div class="theme-border-1 flex-100 flex-cols border-radius-1">
+
+                        <!-- Week Number -->
+                        <div class="flex-cols flex-cols-center height-medium ">
+                            <p>@week.Number</p>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Week & Capacity -->
+                <div class="flex-100 grid">
+
+                    <!-- Week Events -->
+                    <div class="flex-100 grid-C1R1 margin-top-medium clickable-off" style="z-index: 3; width: 75.75%; padding:1px">
+                        <!-- Foreach event-->
+                        @foreach (var evnt in week.Events)
+                        {
+                            <div class="height-medium clickable-on " style="margin-top: 4px; margin-bottom: 4px; ">
+                                <div class="TestingClass @evnt.EventColor fill flex-cols flex-cols-center-y border-radius-1">
+                                    <div class="flex-rows fill flex-rows-center-y">
+                                        <div class="fill-height @evnt.EventColor-dark border-radius-1" style="height:100%; width:10px;"></div>
+                                        <p style="margin-left:10px;"><b>BIF</b> :  @evnt.BIF</p>
+                                        <p style="margin-left:20px;"><b>Project</b> :  @evnt.Project</p>
+                                        <p style="margin-left:20px;"><b>Qty</b> :  @evnt.Qty</p>
+                                        <p style="margin-left:20px;"><b>PRS</b> :  @evnt.PRS</p>
+                                        <p style="margin-left:20px;"><b>CR</b> :  CR1</p>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Week Days -->
+                    <div class="flex-rows grid-C1R1">
+                        <!-- Foreach Day -->
+                        @foreach (var day in week.Days)
+                        {
+                            if (@day.IsWorkday)
+                            {
+                                <div class="theme-border-1 grid flex-100 " style="min-height: 15vh;">
+                                    @if (@day.IsHoliday)
+                                    {
+                                        <div class="clickable-off grid-C1R1 fill stripes-bkg-img flex-cols flex-cols-center border-radius-1" style="z-index: 2;">
+                                            <p style="text-align:center;font-size:5vh;opacity:0.8">Holiday</p>
+                                        </div>
+                                    }
+
+                                    <div class="TestingClass fill grid-C1R1 clickable-on flex-cols">
+                                        <!-- Day Header -->
+                                        <div class="height-medium flex-cols flex-cols-center-y">
+                                            <div class="theme-bkg-2 flex-cols flex-cols-center-y fill border-radius-1">
+                                                <p style="margin-left: 5px; ">@day.Date.Day</p>
+                                            </div>
+                                        </div>
+
+                                        <!-- Day Body -->
+                                        <div class="flex-100 theme-bkg-4">
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+
+                        <!-- MFGE Capacity -->
+                        <div class="theme-border-1 flex-cols flex-80" style="min-height: 15vh;">
+                            <div class="fill-height flex-cols flex-cols-center-y" style="height: 100%; display: flex; align-items: center;flex-direction:column">
+                                <div class="theme-bkg-4" style="width: 100%; height: 100%; display: flex; align-items: center; flex-direction: column">
+                                    <!-- MFGE Title -->
+                                    <div class="theme-bkg-2 border-radius-1" style="width: 100%; display: flex; justify-content: center; align-items: center; height: 35px; ">
+                                        <p style="padding: 0; margin: 0; padding-left: 5px; color: white; text-align:center;">MFGE Capacity</p>
+                                    </div>
+                                    <!-- MFGE Value -->
+                                    <div class="TestingClass theme-bkg-4" style="width: 100%; display: flex; justify-content: center; align-items: center; height: 35px; flex: 1 ">
+                                        <p style="padding: 0; margin: 0; padding-left: 5px; color: white; text-align:center; font-weight:bold">100%</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- SMT Capacity -->
+                        <div class="theme-border-1 flex-cols flex-80" style="min-height: 15vh;">
+                            <div class="fill-height flex-cols flex-cols-center-y" style="height: 100%; display: flex; align-items: center;flex-direction:column">
+                                <div class="theme-bkg-4" style="width: 100%; height: 100%; display: flex; align-items: center; flex-direction: column ">
+                                    <!-- SMT Title-->
+                                    <div class="theme-bkg-2 border-radius-1" style="width: 100%; display: flex; justify-content: center; align-items: center; height: 35px;  ">
+                                        <p style="padding: 0; margin: 0; padding-left: 5px; color: white; text-align:center;">SMT Capacity</p>
+                                    </div>
+                                    <!-- SMT Value-->
+                                    <div class="TestingClass theme-bkg-4" style="width: 100%; display: flex; justify-content: center; align-items: center; height: 35px;  flex: 1 ">
+                                        <p style="padding: 0; margin: 0; padding-left: 5px; color: white; text-align:center; font-weight:bold">70%</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        }
+    </div>
+
+</div>
